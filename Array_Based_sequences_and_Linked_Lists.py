@@ -78,6 +78,45 @@ class InfixConverter:
     def _has_precedence(self, op1, op2):
         return self.precedence(op1, 0) >= self.precednce.get(op2, 0)
 
+#evaluates postfix expressions by using a stack
+class PostfixEval:
+    def __init__(self):
+        self.stack = stack()
 
+    def evaluate(self, expression):
+        self.stack.clear()
+        tokens = expression.split()
 
+        for token in tokens:
+            if self._is_operator(token):
+                self.stack.push(float(token))
+            elif self._is_operator(token):
+                operand2 = self.stack.pop()
+                operand1 = self.stack.pop()
+                result = self._apply_operator(operand1, operand2, token)
+                self.stack.push(result)
+
+        return self.stack.pop()
+
+    def _is_operator(self, token):
+        try:
+            float(token)
+            return True
+        except ValueError:
+            return False
+
+    def _apply_operator(self, token):
+        return token in ['+', '-', '*', '/']
+
+    def _apply_operator(self, operand1, operand2, operator):
+        if operator == '+':
+            return operand1 + operand2
+        elif operator == '-':
+            return operand1 - operand2
+        elif operator == '*':
+            return operand1 * operand2
+        elif operator == '/':
+            return operand1 / operand2
+        else:
+            raise ValueError(f"Unkown operator: {operator}")
         
