@@ -1,85 +1,67 @@
 #Thomas Cubstead
 #Algorithm_Runtime_Project
-#linked_List_Project
+#Split_Evens_Odds
 #10/23/25
-#this program uses the build_list_forward and tests different methods of a singly linked list
-
-#Node class for singly linked list
-def test_forward_list():
-    print("---- Build a forward list ----")
-    ll = SinglyLinkedList()
-    ll.build_forward_list([10, 20, 30, 40, 50])
-    ll.display()
-    
-    print("Delete the first node:")
-    ll.remove(10)
-    ll.display()
-    
-    print("Delete the last node:")
-    ll.remove(50)
-    ll.display()
-    
-    print("Delete the interior node:")
-    ll.remove(30)
-    ll.display()
-
-#tests build_list_backward
-def test_backward_list():
-    print("\n---- Build a backward list ----")
-    ll = SinglyLinkedList()
-    ll.build_backward_list([10, 20, 30, 40, 50])
-    ll.display()
-    
-    print("Delete the first node:")
-    ll.remove(50)
-    ll.display()
-    
-    print("Delete the last node:")
-    ll.remove(10)
-    ll.display()
-    
-    print("Delete the interior node:")
-    ll.remove(30)
-    ll.display()
-
-#tests non-recursive reverse display
-def test_reverse_display():
-    """Test non-recursive reverse display"""
-    print("\n---- Non-recursive reverse print test----")
-    ll = SinglyLinkedList()
-    ll.build_forward_list([10, 20, 30, 40, 50])
-    
-    print("Insertion order:")
-    ll.display()
-    
-    print("Reverse order (recursive):")
-    ll.display_reverse()
-    
-    print("Reverse order (non-recursive):")
-    ll.display_reverse_nr()
-
-#removes functions
-def test_remove_all():
-    print("\n---- Remove all test ----")
-    ll = SinglyLinkedList()
-    ll.build_forward_list([1, 2, 4, 6, 1, 3, 6])
-    ll.display()
-    
-    print("Removing 1 and all duplicates:")
-    ll.remove_all(1)
-    ll.display()
-    
-    print("Removing 6 and all duplicates:")
-    ll.remove_all(6)
-    ll.display()
-
-#output
-def main():
-    test_forward_list()
-    test_backward_list()
-    test_reverse_display()
-    test_remove_all()
+#this program splits a linked list into two lists one with even integers and the other with odd integers
 
 
-if __name__ == "__main__":
-    main()
+from linked_List_Project import Node, SinglyLinkedList
+
+
+class SplitEvensOdds(SinglyLinkedList):
+    
+    def split(self):
+
+        evens_list = SinglyLinkedList()
+        odds_list = SinglyLinkedList()
+        
+
+        current = self._SinglyLinkedList__head
+        
+        evens_tail = None
+        odds_tail = None
+        
+        while current is not None:
+            # Save the next node before we modify current.next
+            next_node = current.next
+            
+            # Disconnect current node from the original list
+            current.next = None
+            
+            # Check if even or odd and add to appropriate list
+            if current.data % 2 == 0:
+
+                if evens_list._SinglyLinkedList__head is None:
+
+                    evens_list._SinglyLinkedList__head = current
+                    evens_tail = current
+                else:
+                    # Append to evens list
+                    evens_tail.next = current
+                    evens_tail = current
+                
+                evens_list._SinglyLinkedList__tail = evens_tail
+                evens_list._SinglyLinkedList__count += 1
+            else:
+                # Add to odds list
+                if odds_list._SinglyLinkedList__head is None:
+
+                    odds_list._SinglyLinkedList__head = current
+                    odds_tail = current
+                else:
+                    # Append to odds list
+                    odds_tail.next = current
+                    odds_tail = current
+                
+                odds_list._SinglyLinkedList__tail = odds_tail
+                odds_list._SinglyLinkedList__count += 1
+            
+            # Move to next node in original list
+            current = next_node
+        
+        # Clear the original list
+        self._SinglyLinkedList__head = None
+        self._SinglyLinkedList__tail = None
+        self._SinglyLinkedList__count = 0
+        
+        return evens_list, odds_list
