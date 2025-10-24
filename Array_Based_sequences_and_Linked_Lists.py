@@ -1,160 +1,146 @@
 #Thomas Cubstead
 #Algorithm_Runtime_Project
-#Main
+#singlely_Linked_Lists.py
 #10/23/25
-#This program uses stack classes to evaluate postfix expressions and convert infix expressions to postfix expressions 
-#using both array-based sequences and linked lists.
+#This stores the isinglely linked list ADT file
 
 
-#stack.py 
-class Stack:
-    #initialize an empty stack
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+
+class SinglyLinkedList:
+    class EmptyListException(Exception):
+        pass
+
+    class NodeNotFoundException(Exception):
+        pass
+
     def __init__(self):
-        self._items = []
-    #stack methods
-    def push(self, item):
-        self._items.append(item)
-    
-    def pop(self):
-        if self.is_empty():
-            raise IndexError("pop from empty stack")
-        return self._items.pop()
-    
-    def peek(self):
-        if self.is_empty():
-            raise IndexError("peek from empty stack")
-        return self._items[-1]
+        self.__head = None
+        self.__tail = None
+        self.__count = 0
 
-    def is_empty(self):
-        return len(self._items) == 0
+    def build_forward_list(self, iterable):
+        for item in iterable:
+            self.__append(item)
 
-    def size(self):
-        return len(self._items) == 0
+    def build_backward_list(self, iterable):
+        for item in iterable:
+            self.__prepend(item)
 
-    def clear(self):
-        self._items.clear()
-
-    def __str__(self):
-        return str(self._items)
-
-#evaluates postfix expressions by using a stack
-class PostfixEval:
-    
-    def __init__(self):
-        self.stack = Stack()
-    
-    def evaluate(self, expression):
-        self.stack.clear()
-        tokens = expression.split()
-        
-        for token in tokens:
-            if self._is_operand(token):
-                # Push operand onto stack
-                self.stack.push(float(token))
-            elif self._is_operator(token):
-                # Pop two operands, apply operator, push result
-                operand2 = self.stack.pop()
-                operand1 = self.stack.pop()
-                result = self._apply_operator(operand1, operand2, token)
-                self.stack.push(result)
-        
-        # Final result is the only item left on stack
-        return self.stack.pop()
-    
-    def _is_operand(self, token):
-        try:
-            float(token)
-            return True
-        except ValueError:
-            return False
-    
-    def _is_operator(self, token):
-        return token in ['+', '-', '*', '/']
-    
-    def _apply_operator(self, operand1, operand2, operator):
-        if operator == '+':
-            return operand1 + operand2
-        elif operator == '-':
-            return operand1 - operand2
-        elif operator == '*':
-            return operand1 * operand2
-        elif operator == '/':
-            return operand1 / operand2
+    def __append(self, value):
+        new_node = Node(value)
+        if self.__head is None:
+            self.__head = self.__tail = new_node
         else:
-            raise ValueError(f"Unknown operator: {operator}")
+            self.__tail.next = new_node
+            self.__tail = new_node
+        self.__count += 1
 
-#class to convert infix expressions to postfix expressions
-class InfixConverter:
-    def __init__(self):
-        self.stack = Stack()
-        self.precedence = {'+': 1, '-': 1, '*': 2, '/': 2, '/': 2}
+    def __prepend(self, value):
+        new_node = Node(value)
+        new_node.next = self.__head
+        self.__head = new_node
+        if self.__tail is None:
+            self.__tail = new_node
+        self.__count += 1
 
-    def convert(self, expression):
-        self.stack.clear()
-        postfix = []
-        tokens = expression.split()
+    def insert_after(self, after_value, new_value):
+        if self.__head is None:
+            raise SinglyLinkedList.EmptyListException()
+        current = self.__head
+        while current and current.data != after_value:
+            current = current.next
+        if current is None:
+            raise SinglyLinkedList.NodeNotFoundException()
+        new_node = Node(new_value)
+        new_node.next = current.next
+        current.next = new_node
+        if current == self.__tail:  
+            self.__tail = new_node  
+        self.__count += 1
 
-        for token in tokens:
-            if self._is_operand(token):
-                postfix.append(token)
-            elif token == '(':
-                self.stack.push(token)
-            elif token ==')':
-                while not self.stack.is_empty() and self.stack.peek() != '(':
-                    postfix.append(self.stack.pop())
-                self.stack.pop()
-            elif self._is_operator(token):
-                while (not self.stack.is_empty() and
-                       self.stack.peek() != '(' and
-                       self._has_precedence(self.stack.peek(), token)):
-                    postfix.append(self.stack.pop())
-                self.stack.push(token)
-
-        while not self.stack.is_empty():
-            postfix.append(self.stack.pop())
-
-        return ' '.join(postfix)
-
-    def _is_operand(self, token):
-        return token.isalnum()
-
-    def _is_operator(self, token):
-        return token in self.precedence
-
-    def _has_precedence(self, op1, op2):
-        return self.precedence.get(op1, 0) >= self.precedence.get(op2, 0)
-
-        
-def main():
-    # Test Data for Postfix Evaluator
-    postfix = ["5 3 +", "8 2 - 3 +", "5 3 8 * +", "6 2 / 3 +", 
-               "5 8 + 3 -", "5 3 + 8 *", "8 2 3 * + 6 -", 
-               "5 3 8 * + 2 /", "8 2 + 3 6 * -", "5 3 + 8 2 / -"]
-    
-    # Test Data for Infix Converter
-    infix = ["A + B", "A + B * C", "( A + B ) * C", "A * B + C / D", 
-             "( A + B ) * ( C - D )", "A + B * C - D / E", 
-             "A * ( B + C ) / D", "( A + B * C ) / ( D - E )", 
-             "A + ( B - C ) * D", "( A + B * ( C - D ) ) / E"]
-
-   # Test Postfix Evaluator
-    print("----- Postfix Evaluator -----")
-    evaluator = PostfixEval()
-
-    for expr in postfix:
-        result = evaluator.evaluate(expr)
-        # Format result: if it's a whole number, show as int, otherwise as float
-        if result == int(result):
-            print(f"[{expr}] = {int(result)}")
+    def remove(self, value):
+        if self.__head is None:
+            raise SinglyLinkedList.EmptyListException()
+        current = self.__head
+        previous = None
+        while current and current.data != value:
+            previous = current
+            current = current.next
+        if current is None:
+            raise SinglyLinkedList.NodeNotFoundException()
+        if previous is None:
+            self.__head = current.next  
         else:
-            print(f"[{expr}] = {result}")
+            previous.next = current.next  
+        if current == self.__tail:
+            self.__tail = previous  
+        self.__count -= 1
 
-    print("\n----- Infix to Postfix Converter -----")
-    converter = InfixConverter()
+    def remove_all(self, value):
+        """Remove all nodes with the specified value"""
+        if self.__head is None:
+            return
+        
+        while self.__head is not None and self.__head.data == value:
+            self.__head = self.__head.next
+            self.__count -= 1
+        
+        if self.__head is None:
+            self.__tail = None
+            return
+        
+        current = self.__head
+        while current.next is not None:
+            if current.next.data == value:
+                if current.next == self.__tail:
+                    self.__tail = current
+                current.next = current.next.next
+                self.__count -= 1
+            else:
+                current = current.next
 
-    for expr in infix:
-        result = converter.convert(expr)
-        print(f"[{expr}] -> [{result}]")
+    def display(self):
+        current = self.__head
+        elements = []
+        while current:
+            elements.append(str(current.data))
+            current = current.next
+        print("Head -> " + " -> ".join(elements) + " -> None")
 
-if __name__ == "__main__":
-    main()
+    def display_reverse(self):
+        def _reverse_recursive(node):
+            return _reverse_recursive(node.next) + [node.data] if node else []
+        print("None <- " + " <- ".join(map(str, _reverse_recursive(self.__head))) + " <- Head")
+
+    def display_reverse_nr(self):
+        """Display the list in reverse order without recursion (using stack)"""
+        if self.__head is None:
+            print("None <- Head")
+            return
+        
+        stack = []
+        current = self.__head
+        
+        while current is not None:
+            stack.append(current.data)
+            current = current.next
+        
+        result = "None"
+        while stack:
+            result += f" <- {stack.pop()}"
+        result += " <- Head"
+        print(result)
+
+    def __iter__(self):
+        current = self.__head
+        while current:
+            yield current.data
+            current = current.next
+
+    def __len__(self):
+        return self.__count
