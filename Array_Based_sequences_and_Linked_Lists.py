@@ -5,7 +5,7 @@
 #this program splits a linked list into two lists one with even integers and the other with odd integers
 
 
-from linked_List_Project import Node, SinglyLinkedList
+from singlely_Linked_lists.py import Node, SinglyLinkedList
 
 
 class SplitEvensOdds(SinglyLinkedList):
